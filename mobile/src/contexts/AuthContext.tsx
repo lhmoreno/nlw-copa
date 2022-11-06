@@ -28,8 +28,9 @@ export function AuthContextProvider({ children }) {
   const [isUserLoading, setIsUserLoading] = useState(false);
   const [user, setUser] = useState<UserProps>({} as UserProps);
 
+
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: '123',
+    clientId: process.env.CLIENT_ID,
     redirectUri: AuthSessions.makeRedirectUri({ useProxy: true }),
     scopes: ['profile', 'email'],
   });
@@ -49,7 +50,7 @@ export function AuthContextProvider({ children }) {
   async function singInWithGoogle(access_token: string) {
     try {
       setIsUserLoading(true);
-
+      
       const tokenResponse = await api.post('/users', { access_token });
       api.defaults.headers.common['Authorization'] = `Bearer ${tokenResponse.data.token}`;
 
@@ -64,10 +65,10 @@ export function AuthContextProvider({ children }) {
   }
 
   useEffect(() => {
-    if (response?.type === 'success' && response.authentication?.accessToken) {
+    if(response?.type === 'success' && response.authentication?.accessToken) {
       singInWithGoogle(response.authentication.accessToken);
     }
-  }, [response])
+  },[response])
 
   return (
     <AuthContext.Provider value={{
